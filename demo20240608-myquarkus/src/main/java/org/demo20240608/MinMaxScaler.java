@@ -11,9 +11,13 @@ public class MinMaxScaler {
     private double[] scale_;
     private double[] min_;
 
-    public MinMaxScaler(String scaleFilePath, String minFilePath) throws IOException {
-        this.scale_ = loadParameters(scaleFilePath);
-        this.min_ = loadParameters(minFilePath);
+    public MinMaxScaler(String scaleFilePath, String minFilePath) {
+        try {
+            this.scale_ = loadParameters(scaleFilePath);
+            this.min_ = loadParameters(minFilePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private double[] loadParameters(String filePath) throws IOException {
