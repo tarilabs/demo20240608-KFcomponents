@@ -59,6 +59,12 @@ deploymentSpec:
   executors:
     exec-my-camel:
       container:
+        args:
+        - /data
+        command:
+        - java
+        - -jar
+        - myCamel.jar
         image: quay.io/mmortari/demo20240608-mycamel
     exec-my-dataset:
       container:

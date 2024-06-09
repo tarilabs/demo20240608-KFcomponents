@@ -4,7 +4,7 @@ from kfp import kubernetes
 
 @dsl.container_component
 def my_camel():
-    return dsl.ContainerSpec(image='quay.io/mmortari/demo20240608-mycamel')
+    return dsl.ContainerSpec(image='quay.io/mmortari/demo20240608-mycamel', command=["java", "-jar", "myCamel.jar"], args=["/data"])
 
 
 @dsl.component(base_image='registry.access.redhat.com/ubi8/python-311', packages_to_install=['pandas', 'scikit-learn'])
