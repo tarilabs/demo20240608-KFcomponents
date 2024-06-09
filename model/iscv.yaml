@@ -9,4 +9,4 @@ spec:
         name: sklearn
       protocolVersion: v2
       runtime: kserve-sklearnserver
-      storageUri: "gs://kfserving-examples/models/sklearn/1.0/model"
+      storageUri: "https://raw.githubusercontent.com/tarilabs/demo20240608-KFcomponents/main/model/model.joblib"
