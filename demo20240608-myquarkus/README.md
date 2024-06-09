@@ -1,4 +1,6 @@
-# demo20240608-myquarkus
+kubectl port-forward -n default svc/demo20240608-myquarkus 8090:80 --address=0.0.0.0
+
+<!-- # demo20240608-myquarkus
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
@@ -59,3 +61,4 @@ If you want to learn more about building native executables, please consult http
 Easily start your REST Web Services
 
 [Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+-->
