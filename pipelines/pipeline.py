@@ -2,10 +2,10 @@ from kfp import dsl
 from kfp import kubernetes
 
 
-@dsl.component(base_image='registry.access.redhat.com/ubi8/python-311', packages_to_install=['kaggle', 'pandas', 'scikit-learn'])
-def kaggle_dataset():
+@dsl.component(base_image='registry.access.redhat.com/ubi8/python-311', packages_to_install=['pandas', 'scikit-learn'])
+def my_dataset():
     import pandas as pd
-    train = pd.read_csv('archive/2020/heart_2020_cleaned.csv')
+    train = pd.read_csv('/data/archive/2020/heart_2020_cleaned.csv') # pick from PVC
     numeric_features=['BMI', 'PhysicalHealth', 'MentalHealth', 'SleepTime']
     categorical_features=['HeartDisease', 'Smoking', 'AlcoholDrinking', 'Stroke', 'DiffWalking', 'Sex', 'AgeCategory',
         'Race', 'Diabetic', 'PhysicalActivity', 'GenHealth','Asthma', 'KidneyDisease', 'SkinCancer']
@@ -113,11 +113,7 @@ def framingham_cvd_risk_pipeline():
         # use std: storage_class_name='standard-csi', # might need to change
     )
 
-    dataset_task = kaggle_dataset().set_caching_options(enable_caching=False)
-    kubernetes.use_secret_as_env(
-        dataset_task,
-        secret_name='kaggle-api',
-        secret_key_to_env={'KAGGLE_USERNAME': 'KAGGLE_USERNAME', 'KAGGLE_KEY': 'KAGGLE_KEY'})
+    dataset_task = my_dataset().set_caching_options(enable_caching=False)
     kubernetes.mount_pvc(
         dataset_task,
         pvc_name=pvc1.outputs['name'],
