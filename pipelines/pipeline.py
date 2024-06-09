@@ -7,7 +7,7 @@ def my_camel():
     return dsl.ContainerSpec(image='quay.io/mmortari/demo20240608-mycamel', command=["java", "-jar", "myCamel.jar"], args=["/data"])
 
 
-@dsl.component(base_image='registry.access.redhat.com/ubi8/python-311', packages_to_install=['pandas', 'scikit-learn'])
+@dsl.component(base_image='registry.access.redhat.com/ubi8/python-311', packages_to_install=['pandas', 'scikit-learn==1.4.0'])
 def my_dataset():
     import pandas as pd
     train = pd.read_csv('/data/archive/2020/heart_2020_cleaned.csv') # pick from PVC
@@ -39,7 +39,7 @@ def my_dataset():
     print(os.listdir('/data'))
 
 
-@dsl.component(base_image='registry.access.redhat.com/ubi8/python-311', packages_to_install=['pandas', 'scikit-learn', 'xgboost'])
+@dsl.component(base_image='registry.access.redhat.com/ubi8/python-311', packages_to_install=['pandas', 'scikit-learn==1.4.0', 'xgboost'])
 def train_model_using(module_name: str, class_name: str):
     print(f'Using model_name: {module_name} {class_name}')
     import os
@@ -87,7 +87,7 @@ def train_model_using(module_name: str, class_name: str):
     save_pickle(result,f'/data/{class_name}_results.pkl') # save result statistics, space-friendly for constrained environments
     
 
-@dsl.component(base_image='registry.access.redhat.com/ubi8/python-311', packages_to_install=['pandas', 'scikit-learn'])
+@dsl.component(base_image='registry.access.redhat.com/ubi8/python-311', packages_to_install=['pandas', 'scikit-learn==1.4.0'])
 def select_best():
     import os
     import pickle
