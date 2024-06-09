@@ -1,0 +1,19 @@
+{
+    "model_name": "mm-model",
+    "model_version": null,
+    "id": "06c66e14-c113-4230-b340-ebbd2f83f7b5",
+    "parameters": null,
+    "outputs": [
+        {
+            "name": "output-0",
+            "shape": [
+                1
+            ],
+            "datatype": "FP64",
+            "parameters": null,
+            "data": [
+                1.0
+            ]
+        }
+    ]
+}
