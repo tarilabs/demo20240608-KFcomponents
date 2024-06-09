@@ -1,2 +1,6 @@
 temp
 tmp
+
+# jbang export portable myCamel.java
+lib
+myCamel.jar

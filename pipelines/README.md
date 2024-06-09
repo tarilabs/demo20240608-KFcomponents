@@ -9,6 +9,14 @@ and perform training in parallel of the different Machine Learning models, to fi
 
 <!--
 
+## Camel in docker
+
+jbang myCamel.java ./tmp
+jbang export portable myCamel.java
+docker build -t my-app . --load
+docker run -v ./tmp/:/data my-app
+docker build -t quay.io/mmortari/demo20240608-mycamel . --push 
+
 ## Prerequisites
 
 - _Kaggle API token_: this can be retrieved from the [personal Kaggle account settings](https://www.kaggle.com/settings/account).

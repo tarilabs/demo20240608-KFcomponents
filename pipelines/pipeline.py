@@ -2,6 +2,11 @@ from kfp import dsl
 from kfp import kubernetes
 
 
+@dsl.container_component
+def my_camel():
+    return dsl.ContainerSpec(image='quay.io/mmortari/demo20240608-mycamel')
+
+
 @dsl.component(base_image='registry.access.redhat.com/ubi8/python-311', packages_to_install=['pandas', 'scikit-learn'])
 def my_dataset():
     import pandas as pd
@@ -113,7 +118,14 @@ def framingham_cvd_risk_pipeline():
         # use std: storage_class_name='standard-csi', # might need to change
     )
 
-    dataset_task = my_dataset().set_caching_options(enable_caching=False)
+    camel_task = my_camel().set_caching_options(enable_caching=False)
+    kubernetes.mount_pvc(
+        camel_task,
+        pvc_name=pvc1.outputs['name'],
+        mount_path='/data',
+    )
+
+    dataset_task = my_dataset().after(camel_task).set_caching_options(enable_caching=False)
     kubernetes.mount_pvc(
         dataset_task,
         pvc_name=pvc1.outputs['name'],
