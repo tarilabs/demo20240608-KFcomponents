@@ -111,44 +111,35 @@ def select_best():
 
 @dsl.pipeline
 def framingham_cvd_risk_pipeline():
-    pvc1 = kubernetes.CreatePVC(
-        pvc_name_suffix='-mypipeline-pvc',
-        access_modes=['ReadWriteMany'],
-        size='500Mi',
-        # use std: storage_class_name='standard-csi', # might need to change
-    )
-
     camel_task = my_camel().set_caching_options(enable_caching=False)
     kubernetes.mount_pvc(
         camel_task,
-        pvc_name=pvc1.outputs['name'],
+        pvc_name="my-pipeline-pvc",
         mount_path='/data',
     )
 
     dataset_task = my_dataset().after(camel_task).set_caching_options(enable_caching=False)
     kubernetes.mount_pvc(
         dataset_task,
-        pvc_name=pvc1.outputs['name'],
+        pvc_name="my-pipeline-pvc",
         mount_path='/data',
     )
 
     KNeighborsClassifier_task = train_model_using(module_name="sklearn.neighbors", class_name="KNeighborsClassifier").after(dataset_task).set_caching_options(enable_caching=False)
-    kubernetes.mount_pvc(KNeighborsClassifier_task,pvc_name=pvc1.outputs['name'],mount_path='/data')
+    kubernetes.mount_pvc(KNeighborsClassifier_task,pvc_name="my-pipeline-pvc",mount_path='/data')
     LogisticRegression_task = train_model_using(module_name="sklearn.linear_model", class_name="LogisticRegression").after(dataset_task).set_caching_options(enable_caching=False)
-    kubernetes.mount_pvc(LogisticRegression_task,pvc_name=pvc1.outputs['name'],mount_path='/data')
+    kubernetes.mount_pvc(LogisticRegression_task,pvc_name="my-pipeline-pvc",mount_path='/data')
     XGBClassifier_task = train_model_using(module_name="xgboost", class_name="XGBClassifier").after(dataset_task).set_caching_options(enable_caching=False)
-    kubernetes.mount_pvc(XGBClassifier_task,pvc_name=pvc1.outputs['name'],mount_path='/data')
+    kubernetes.mount_pvc(XGBClassifier_task,pvc_name="my-pipeline-pvc",mount_path='/data')
     ExtraTreesClassifier_task = train_model_using(module_name="sklearn.ensemble", class_name="ExtraTreesClassifier").after(dataset_task).set_caching_options(enable_caching=False)
-    kubernetes.mount_pvc(ExtraTreesClassifier_task,pvc_name=pvc1.outputs['name'],mount_path='/data')
+    kubernetes.mount_pvc(ExtraTreesClassifier_task,pvc_name="my-pipeline-pvc",mount_path='/data')
     RandomForestClassifier_task = train_model_using(module_name="sklearn.ensemble", class_name="RandomForestClassifier").after(dataset_task).set_caching_options(enable_caching=False)
-    kubernetes.mount_pvc(RandomForestClassifier_task,pvc_name=pvc1.outputs['name'],mount_path='/data')
+    kubernetes.mount_pvc(RandomForestClassifier_task,pvc_name="my-pipeline-pvc",mount_path='/data')
     GradientBoostingClassifier_task = train_model_using(module_name="sklearn.ensemble", class_name="GradientBoostingClassifier").after(dataset_task).set_caching_options(enable_caching=False)
-    kubernetes.mount_pvc(GradientBoostingClassifier_task,pvc_name=pvc1.outputs['name'],mount_path='/data')
+    kubernetes.mount_pvc(GradientBoostingClassifier_task,pvc_name="my-pipeline-pvc",mount_path='/data')
 
     select_best_task = select_best().after(KNeighborsClassifier_task,LogisticRegression_task,XGBClassifier_task,ExtraTreesClassifier_task,RandomForestClassifier_task,GradientBoostingClassifier_task).set_caching_options(enable_caching=False)
-    kubernetes.mount_pvc(select_best_task,pvc_name=pvc1.outputs['name'],mount_path='/data')
-
-    delete_pvc1 = kubernetes.DeletePVC(pvc_name=pvc1.outputs['name']).after(select_best_task)
+    kubernetes.mount_pvc(select_best_task,pvc_name="my-pipeline-pvc",mount_path='/data')
 
 
 if __name__ == '__main__':

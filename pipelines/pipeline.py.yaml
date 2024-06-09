@@ -1,75 +1,6 @@
 # PIPELINE DEFINITION
 # Name: framingham-cvd-risk-pipeline
 components:
-  comp-createpvc:
-    executorLabel: exec-createpvc
-    inputDefinitions:
-      parameters:
-        access_modes:
-          description: 'AccessModes to request for the provisioned PVC. May
-
-            be one or more of ``''ReadWriteOnce''``, ``''ReadOnlyMany''``, ``''ReadWriteMany''``,
-            or
-
-            ``''ReadWriteOncePod''``. Corresponds to `PersistentVolumeClaim.spec.accessModes
-            <https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes>`_.'
-          parameterType: LIST
-        annotations:
-          description: Annotations for the PVC's metadata. Corresponds to `PersistentVolumeClaim.metadata.annotations
-            <https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/persistent-volume-claim-v1/#PersistentVolumeClaim>`_.
-          isOptional: true
-          parameterType: STRUCT
-        pvc_name:
-          description: 'Name of the PVC. Corresponds to `PersistentVolumeClaim.metadata.name
-            <https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/persistent-volume-claim-v1/#PersistentVolumeClaim>`_.
-            Only one of ``pvc_name`` and ``pvc_name_suffix`` can
-
-            be provided.'
-          isOptional: true
-          parameterType: STRING
-        pvc_name_suffix:
-          description: 'Prefix to use for a dynamically generated name, which
-
-            will take the form ``<argo-workflow-name>-<pvc_name_suffix>``. Only one
-
-            of ``pvc_name`` and ``pvc_name_suffix`` can be provided.'
-          isOptional: true
-          parameterType: STRING
-        size:
-          description: The size of storage requested by the PVC that will be provisioned.
-            For example, ``'5Gi'``. Corresponds to `PersistentVolumeClaim.spec.resources.requests.storage
-            <https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/persistent-volume-claim-v1/#PersistentVolumeClaimSpec>`_.
-          parameterType: STRING
-        storage_class_name:
-          defaultValue: ''
-          description: 'Name of StorageClass from which to provision the PV
-
-            to back the PVC. ``None`` indicates to use the cluster''s default
-
-            storage_class_name. Set to ``''''`` for a statically specified PVC.'
-          isOptional: true
-          parameterType: STRING
-        volume_name:
-          description: 'Pre-existing PersistentVolume that should back the
-
-            provisioned PersistentVolumeClaim. Used for statically
-
-            specified PV only. Corresponds to `PersistentVolumeClaim.spec.volumeName
-            <https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/persistent-volume-claim-v1/#PersistentVolumeClaimSpec>`_.'
-          isOptional: true
-          parameterType: STRING
-    outputDefinitions:
-      parameters:
-        name:
-          parameterType: STRING
-  comp-deletepvc:
-    executorLabel: exec-deletepvc
-    inputDefinitions:
-      parameters:
-        pvc_name:
-          description: Name of the PVC to delete. Supports passing a runtime-generated
-            name, such as a name provided by ``kubernetes.CreatePvcOp().outputs['name']``.
-          parameterType: STRING
   comp-my-camel:
     executorLabel: exec-my-camel
   comp-my-dataset:
@@ -126,12 +57,6 @@ components:
           parameterType: STRING
 deploymentSpec:
   executors:
-    exec-createpvc:
-      container:
-        image: argostub/createpvc
-    exec-deletepvc:
-      container:
-        image: argostub/deletepvc
     exec-my-camel:
       container:
         image: quay.io/mmortari/demo20240608-mycamel
@@ -546,47 +471,10 @@ pipelineInfo:
 root:
   dag:
     tasks:
-      createpvc:
-        cachingOptions:
-          enableCache: true
-        componentRef:
-          name: comp-createpvc
-        inputs:
-          parameters:
-            access_modes:
-              runtimeValue:
-                constant:
-                - ReadWriteMany
-            pvc_name_suffix:
-              runtimeValue:
-                constant: -mypipeline-pvc
-            size:
-              runtimeValue:
-                constant: 500Mi
-        taskInfo:
-          name: createpvc
-      deletepvc:
-        cachingOptions:
-          enableCache: true
-        componentRef:
-          name: comp-deletepvc
-        dependentTasks:
-        - createpvc
-        - select-best
-        inputs:
-          parameters:
-            pvc_name:
-              taskOutputParameter:
-                outputParameterKey: name
-                producerTask: createpvc
-        taskInfo:
-          name: deletepvc
       my-camel:
         cachingOptions: {}
         componentRef:
           name: comp-my-camel
-        dependentTasks:
-        - createpvc
         taskInfo:
           name: my-camel
       my-dataset:
@@ -594,7 +482,6 @@ root:
         componentRef:
           name: comp-my-dataset
         dependentTasks:
-        - createpvc
         - my-camel
         taskInfo:
           name: my-dataset
@@ -603,7 +490,6 @@ root:
         componentRef:
           name: comp-select-best
         dependentTasks:
-        - createpvc
         - train-model-using
         - train-model-using-2
         - train-model-using-3
@@ -617,7 +503,6 @@ root:
         componentRef:
           name: comp-train-model-using
         dependentTasks:
-        - createpvc
         - my-dataset
         inputs:
           parameters:
@@ -634,7 +519,6 @@ root:
         componentRef:
           name: comp-train-model-using-2
         dependentTasks:
-        - createpvc
         - my-dataset
         inputs:
           parameters:
@@ -651,7 +535,6 @@ root:
         componentRef:
           name: comp-train-model-using-3
         dependentTasks:
-        - createpvc
         - my-dataset
         inputs:
           parameters:
@@ -668,7 +551,6 @@ root:
         componentRef:
           name: comp-train-model-using-4
         dependentTasks:
-        - createpvc
         - my-dataset
         inputs:
           parameters:
@@ -685,7 +567,6 @@ root:
         componentRef:
           name: comp-train-model-using-5
         dependentTasks:
-        - createpvc
         - my-dataset
         inputs:
           parameters:
@@ -702,7 +583,6 @@ root:
         componentRef:
           name: comp-train-model-using-6
         dependentTasks:
-        - createpvc
         - my-dataset
         inputs:
           parameters:
@@ -723,55 +603,37 @@ platforms:
       executors:
         exec-my-camel:
           pvcMount:
-          - mountPath: /data
-            taskOutputParameter:
-              outputParameterKey: name
-              producerTask: createpvc
+          - constant: my-pipeline-pvc
+            mountPath: /data
         exec-my-dataset:
           pvcMount:
-          - mountPath: /data
-            taskOutputParameter:
-              outputParameterKey: name
-              producerTask: createpvc
+          - constant: my-pipeline-pvc
+            mountPath: /data
         exec-select-best:
           pvcMount:
-          - mountPath: /data
-            taskOutputParameter:
-              outputParameterKey: name
-              producerTask: createpvc
+          - constant: my-pipeline-pvc
+            mountPath: /data
         exec-train-model-using:
           pvcMount:
-          - mountPath: /data
-            taskOutputParameter:
-              outputParameterKey: name
-              producerTask: createpvc
+          - constant: my-pipeline-pvc
+            mountPath: /data
         exec-train-model-using-2:
           pvcMount:
-          - mountPath: /data
-            taskOutputParameter:
-              outputParameterKey: name
-              producerTask: createpvc
+          - constant: my-pipeline-pvc
+            mountPath: /data
         exec-train-model-using-3:
           pvcMount:
-          - mountPath: /data
-            taskOutputParameter:
-              outputParameterKey: name
-              producerTask: createpvc
+          - constant: my-pipeline-pvc
+            mountPath: /data
         exec-train-model-using-4:
           pvcMount:
-          - mountPath: /data
-            taskOutputParameter:
-              outputParameterKey: name
-              producerTask: createpvc
+          - constant: my-pipeline-pvc
+            mountPath: /data
         exec-train-model-using-5:
           pvcMount:
-          - mountPath: /data
-            taskOutputParameter:
-              outputParameterKey: name
-              producerTask: createpvc
+          - constant: my-pipeline-pvc
+            mountPath: /data
         exec-train-model-using-6:
           pvcMount:
-          - mountPath: /data
-            taskOutputParameter:
-              outputParameterKey: name
-              producerTask: createpvc
+          - constant: my-pipeline-pvc
+            mountPath: /data
