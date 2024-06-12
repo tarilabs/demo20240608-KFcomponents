@@ -16,6 +16,17 @@ curl -v \
   -d @./post.json \
   http://localhost:8080/v2/models/mm-model/infer
 
+
+Example using KServe tutorial
+curl -v \
+-H "Authorization: Bearer "$KF_TOKEN \
+-H "Host: ${SERVICE_HOSTNAME}" \
+-H "Content-Type: application/json" \
+"http://localhost:8080/v1/models/sklearn-iris:predict" \
+-d @./iris-input.json
+
+curl -H "Content-Type: application/json" http://sklearn-iris.kserve-test.svc.cluster.local/v1/models/sklearn-iris:predict -d @./iris-input.json
+
 -->
 
 # Intra cluster
