@@ -1,4 +1,5 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 21
 //DEPS info.picocli:picocli:4.6.3
 //DEPS org.apache.camel:camel-bom:4.4.2@pom
 //DEPS org.apache.camel:camel-core
@@ -44,7 +45,7 @@ class myCamel implements Callable<Integer> {
                     .setHeader(Exchange.HTTP_METHOD, constant("GET"))
                     .toD(githubUrl)
                     .convertBodyTo(byte[].class)
-                    .to("file:temp?fileName=downloaded.zip")
+                    .to("file:/tmp?fileName=mycamel-downloaded.zip")
                     .split(new ZipSplitter()).streaming()
                         .to("file:" + outputDirectory)
                     .end()

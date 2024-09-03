@@ -17,6 +17,10 @@ docker build -t my-app . --load
 docker run -v ./tmp/:/data my-app
 docker build -t quay.io/mmortari/demo20240608-mycamel . --push 
 
+...or
+DOCKER_BUILDKIT=0 docker build . -t quay.io/mmortari/demo20240608-mycamel --platform linux/amd64 -f Dockerfile
+docker push quay.io/mmortari/demo20240608-mycamel
+
 ## Prerequisites
 
 - _Kaggle API token_: this can be retrieved from the [personal Kaggle account settings](https://www.kaggle.com/settings/account).
