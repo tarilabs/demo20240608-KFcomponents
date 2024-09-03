@@ -1,5 +1,7 @@
 # PIPELINE DEFINITION
 # Name: framingham-cvd-risk-pipeline
+# Inputs:
+#    my_parameter: str [Default: 'default value for my_param']
 components:
   comp-my-camel:
     executorLabel: exec-my-camel
@@ -600,6 +602,12 @@ root:
                 constant: sklearn.ensemble
         taskInfo:
           name: train-model-using-6
+  inputDefinitions:
+    parameters:
+      my_parameter:
+        defaultValue: default value for my_param
+        isOptional: true
+        parameterType: STRING
 schemaVersion: 2.1.0
 sdkVersion: kfp-2.7.0
 ---

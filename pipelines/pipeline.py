@@ -110,7 +110,7 @@ def select_best():
 
 
 @dsl.pipeline
-def framingham_cvd_risk_pipeline():
+def framingham_cvd_risk_pipeline(my_parameter: str = 'default value for my_param'):
     camel_task = my_camel().set_caching_options(enable_caching=False)
     kubernetes.mount_pvc(
         camel_task,
